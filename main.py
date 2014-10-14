@@ -24,19 +24,6 @@ HTML_POST_PAGE = \
 """
 
 
-OUTPUT_HTML_PAGE = """
-<!DOCTYPE HTML>
-<html lang="en">
-<head>
-    <title>Image Serve</title>
-</head>
-<body>
-<h1>Serving image dynamically.</h1>
-<img src='/dyimg_serve?img_id=%s'></img>
-</body>
-</html>
-"""
-
 #Hardcoded value for Key name
 email_id = "ryan@gmail.com"
 
@@ -44,7 +31,6 @@ email_id = "ryan@gmail.com"
 class MyUser(ndb.Model):
     file_name = ndb.StringProperty()
     blob = ndb.BlobProperty()
-
 
 class MainPage(webapp2.RequestHandler):
     def get(self):
@@ -60,16 +46,13 @@ class FileUpload(webapp2.RequestHandler):
             file_upload = self.request.POST.get("file", None)
             file_name = file_upload.filename
             my_user.file_name = file_name
-            
-            #For default version of the image
-            #my_user.blob = file_upload.file.read()
 
-            #For Resized down version of the image
-            my_user.blob = images.resize(file_upload.file.read(),48,48)
+            #For default version of the image
+            my_user.blob = file_upload.file.read()
             my_user.put()
 
             #Navigating to other page to read image
-            self.response.out.write(OUTPUT_HTML_PAGE % email_id)
+            self.redirect('/multi_serve')
 
 
 #Handler to read image into the <img> tag in the OUTPUT_HTML_PAGE 
@@ -84,4 +67,11 @@ class DynamicImageServe(webapp2.RequestHandler):
             self.response.out.write('No image')
 
 
-application = webapp2.WSGIApplication([('/',MainPage ),('/file_upload',FileUpload),('/dyimg_serve',DynamicImageServe),], debug=True)         
+#Handler for writing multiple images in the response
+class MultipleImageServe(webapp2.RequestHandler):
+    def get(self):
+        self.response.out.write('<div><img src="/dyimg_serve?img_id=%s"></img></div>' % email_id)
+        self.response.out.write('<div><img src="/dyimg_serve?img_id=%s"></img></div>' % email_id)
+        
+
+application = webapp2.WSGIApplication([('/',MainPage ),('/file_upload',FileUpload),('/dyimg_serve',DynamicImageServe),('/multi_serve',MultipleImageServe),], debug=True)         
