@@ -28,7 +28,7 @@ OUTPUT_HTML_PAGE = """
 <!DOCTYPE HTML>
 <html lang="en">
 <head>
-    <title>Image Upload</title>
+    <title>Image Serve</title>
 </head>
 <body>
 <h1>Serving image dynamically.</h1>
@@ -77,7 +77,8 @@ class DynamicImageServe(webapp2.RequestHandler):
     def get(self):
         oldUser = MyUser.get_by_id(self.request.get('img_id'))
         if oldUser.blob:
-            self.response.headers['Content-Type'] = 'image/png'
+            # Updating content type for all
+            self.response.headers['Content-Type'] = 'image/*'
             self.response.out.write(oldUser.blob)
         else:
             self.response.out.write('No image')
