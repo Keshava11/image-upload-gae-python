@@ -1,5 +1,6 @@
 import webapp2
 from google.appengine.ext import ndb
+from google.appengine.api import images
 import mimetypes
 import logging
 
@@ -59,7 +60,12 @@ class FileUpload(webapp2.RequestHandler):
             file_upload = self.request.POST.get("file", None)
             file_name = file_upload.filename
             my_user.file_name = file_name
-            my_user.blob = file_upload.file.read()
+            
+            #For default version of the image
+            #my_user.blob = file_upload.file.read()
+
+            #For Resized down version of the image
+            my_user.blob = images.resize(file_upload.file.read(),48,48)
             my_user.put()
 
             #Navigating to other page to read image
